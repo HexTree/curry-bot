@@ -1,0 +1,5 @@
+beautifulsoup4
+discord.py
+gspread
+oauth2client
+requests
