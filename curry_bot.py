@@ -8,7 +8,7 @@ from discord_tools.discord_formatting import *
 import re
 
 TOKEN = get_token()
-RANDO_LINK = 'N/A'
+RANDO_LINKS = ['https://adrando.com/']
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
 
 
@@ -58,17 +58,19 @@ async def bingo(ctx):
     await ctx.send(curry_message("Creating Bingo room. Please wait a moment..."))
     room_url, password = get_room()
     if not room_url:
-        await ctx.send(curry_message("Error! I wasn't able to create the room. Sorry. Sorry. Curry."))
+        await ctx.send(curry_message("Error! I wasn't able to create the room. Curry."))
     else:
         await ctx.send(curry_message("...done. Room created at URL: {} with password: {}\nGo do your best! Don't stumble!".format(room_url, italics(password))))
 
 
 @client.command(description="Type '!rando' to fetch the current seed link runners are playing on. Type '!rando <link>' to overwrite current seed with a new one of your choice.", brief="Get rando seed in progress")
 async def rando(ctx, *args):
-    global RANDO_LINK
-    if len(args) == 1:
-        RANDO_LINK = args[0]
-        await ctx.send(curry_message("Rando seed link updated"))
-    await ctx.send(curry_message("Current rando seed link: {}".format(RANDO_LINK)))
+    global RANDO_LINKS
+    if len(args) >= 1:
+        RANDO_LINKS = args
+        await ctx.send(curry_message("Rando seed links updated"))
+    await ctx.send(curry_message("Current rando seed links:"))
+    for i, link in enumerate(RANDO_LINKS):
+        await ctx.send(curry_message("Seed {}: {}".format(i+1, link)))
 
 client.run(TOKEN)
