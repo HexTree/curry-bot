@@ -9,5 +9,5 @@ setup(
     license='MIT',
     long_description=open('README.md').read(),
     python_requires='>=3.6.0',
-    install_requires=['beautifulsoup4', 'discord.py', 'gspread', 'oauth2client', 'requests'],
+    install_requires=['beautifulsoup4', 'discord.py', 'gspread', 'oauth2client', 'requests', 'srcomapi'],
 )

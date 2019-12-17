@@ -4,12 +4,18 @@ from discord.ext.commands import Bot
 from bingo.bingo import get_room
 from discord_tools.auth import get_token
 from discord_tools.discord_formatting import *
+from speedrunapi.speedrunapi import *
 
 import re
+
 
 TOKEN = get_token()
 RANDO_LINKS = ['https://adrando.com/']
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
+BOT_ID = '631144975366619146'
+
+# EMOJIS
+NICOHEY = '<:NicoHey:635538084062298122>'
 
 
 # EVENTS
@@ -43,8 +49,8 @@ async def on_message(message):
     curry_pattern = r"^curry\W*$"
     if re.match(curry_pattern, message.content.lower()):
         await message.channel.send(curry_message("?????"))
-    if '631144975366619146' in message.content:
-        await message.channel.send(curry_message("Hey {}. Type !help for my commands.".format(get_author(message))))
+    if BOT_ID in message.content:
+        await message.channel.send(curry_message("Hey {} {} Type !help for my commands.".format(get_author(message), NICOHEY)))
     await client.process_commands(message)
 
 
@@ -72,5 +78,30 @@ async def rando(ctx, *args):
     await ctx.send(curry_message("Current rando seed links:"))
     for i, link in enumerate(RANDO_LINKS):
         await ctx.send(curry_message("Seed {}: {}".format(i+1, link)))
+
+
+@client.command(description="Type '!leaderboard <category>' to display the current leaderboard, where category is Any%, Bookless% or 100% (For now, just standard categories)", brief="Fetch requested speedrun leaderboard")
+async def leaderboard(ctx, *args):
+    if not args:
+        await ctx.send(curry_message("No category supplied. Type '!help leaderboard' for more info. Curry."))
+    await ctx.send(curry_message("Fetching leaderboard..."))
+    leaderboard = fetch_leaderboard(args[0])
+    if not leaderboard:
+        await ctx.send(curry_message("Something went wrong. Is it a valid category? Type '!help leaderboard' for more info. Curry."))
+    else:
+        for rank, player, time in leaderboard:
+            hours = time//3600
+            time%=3600
+            mins = str(time//60).zfill(2)
+            time%=60
+            secs = str(time).zfill(2)
+            if hours > 0:
+                timestamp = '{}h {}m {}s'.format(hours, mins, secs)
+            elif int(mins) > 0:
+                timestamp = '{}m {}s'.format(mins, secs)
+            else:
+                timestamp = '{}s'.format(secs)
+
+            await ctx.send(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, timestamp)))
 
 client.run(TOKEN)

@@ -3,3 +3,4 @@ discord.py
 gspread
 oauth2client
 requests
+srcomapi
