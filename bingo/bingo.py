@@ -1,8 +1,11 @@
-from bingo.googleapi import *
+from googleapi.googleapi import *
 from bingo.bingosync import *
 
 import json
 import random
+
+CREDS_PATH = 'bingo/creds.json'
+SHEET_NAME = 'Azure Dreams Bingo Goals'
 
 
 class Card:
@@ -22,7 +25,7 @@ class Card:
 
 def get_room(name=None):
     # fetch sheet using google api
-    sheet = get_sheet()
+    sheet = get_sheet(CREDS_PATH, SHEET_NAME)
 
     # create cards
     cards = []
