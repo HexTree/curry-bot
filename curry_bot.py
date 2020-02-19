@@ -59,6 +59,17 @@ async def hello(ctx):
     await ctx.send(curry_message("Hello {}!".format(get_author(ctx.message))))
 
 
+@client.command(description="Crystal Curry", brief="Curry")
+async def curry(ctx):
+    await ctx.send(curry_message("The crystallization of the spices pop up here and there like crystal balls."))
+    await ctx.send(curry_message("The curry made here is not aiming to be the high class curry at your common Indian restaurant,"))
+    await ctx.send(curry_message("but more something you would enjoy at home, bringing out that homely flavor."))
+    await ctx.send(curry_message("It's a taste that does not discriminate, that is fit for everyone."))
+    await ctx.send(curry_message("Having said that, though, it's not something that you could make at home."))
+    await ctx.send(curry_message("The smoothness and depth in it's taste is something only a professional chef could possibly make."))
+    await ctx.send(curry_message("Munch Munch"))
+
+
 @client.command(description="Creates a Bingo room at https://bingosync.com/ and provides the link and password.", brief="Create a Bingo game")
 async def bingo(ctx):
     await ctx.send(curry_message("Creating Bingo room. Please wait a moment..."))
