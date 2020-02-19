@@ -7,7 +7,7 @@ URL = "https://bingosync.com/"
 
 DATA = {'nickname':'CurryBot',
         'game_type':18,
-        'variant_type':167,
+        'variant_type':18,
         'lockout_mode':1,
         'seed':1,
         'is_spectator':'on'}
