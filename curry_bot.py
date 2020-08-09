@@ -7,12 +7,14 @@ from discord_tools.discord_formatting import *
 from speedrunapi.speedrunapi import *
 
 import re
+import time
 
 
 TOKEN = get_token()
 RANDO_LINKS = ['https://adrando.com/']
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
 BOT_ID = '631144975366619146'
+COUNTDOWN_START = 10
 
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
@@ -114,5 +116,21 @@ async def leaderboard(ctx, *args):
                 timestamp = '{}s'.format(secs)
 
             await ctx.send(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, timestamp)))
+
+@client.command(description="Type '!countdown' to start a countdown from {}. Type '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")
+async def countdown(ctx, *args):
+    if args and not args[0].isdigit():
+        await ctx.send(curry_message("I can't count starting from {}. Curry.".format(args[0])))
+    else:
+        start = int(args[0]) if args else COUNTDOWN_START
+        if start <= 0:
+            await ctx.send(curry_message("Why not just say 'go'? Curry."))
+        elif start > COUNTDOWN_START:
+            await ctx.send(curry_message("That sounds like a lot of work. Ask me to start counting from {} or less. Curry.".format(COUNTDOWN_START)))
+        else:
+            for n in range(0, start):
+                await ctx.send(curry_message("{}".format(start - n)))
+                time.sleep(1)
+            await ctx.send(curry_message("Go! Curry."))
 
 client.run(TOKEN)
