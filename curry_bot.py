@@ -8,13 +8,23 @@ from speedrunapi.speedrunapi import *
 
 import re
 import time
+import math
 
 
 TOKEN = get_token()
+RANDO_BASE = 'https://adrando.com/'
 RANDO_LINKS = ['https://adrando.com/']
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
 BOT_ID = '631144975366619146'
 COUNTDOWN_START = 10
+SEEDS_TO_GENERATE = 3
+NULL_PRESET = ""
+RANDO_PRESETS = { \
+                    'secondTower': 'Only Second Tower', \
+                    'secondTowerRun': 'Speedrun Second Tower', \
+                    'starsTournament': 'STARS Tournament', \
+                    'tournament': 'RM3T #2 Tournament' \
+                }
 
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
@@ -82,16 +92,57 @@ async def bingo(ctx):
         await ctx.send(curry_message("...done. Room created at URL: {} with password: {}\nGo do your best! Don't stumble!".format(room_url, italics(password))))
 
 
-@client.command(description="Type '!rando' to fetch the current seed link runners are playing on. Type '!rando <link>' to overwrite current seed with a new one of your choice.", brief="Get rando seed in progress")
+@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
 async def rando(ctx, *args):
     global RANDO_LINKS
+    print_links = True
     if len(args) >= 1:
-        RANDO_LINKS = args
-        await ctx.send(curry_message("Rando seed links updated"))
-    await ctx.send(curry_message("Current rando seed links:"))
-    for i, link in enumerate(RANDO_LINKS):
-        await ctx.send(curry_message("Seed {}: {}".format(i+1, link)))
+        # Match on the start to make this command respond to 'presets' as well
+        if args[0].startswith('preset'):
+            print_links = False
+            for preset, description in RANDO_PRESETS.items():
+                await ctx.send(curry_message("Preset: {}, Description: {}".format(preset, description)))
+        else:
+            updated = False
+            preset = get_matching_preset(args[0])
+            if preset:
+                await ctx.send(curry_message("Generating seeds..."))
+                seed_base = time.time() * 1000
+                seed_floor = math.floor(seed_base)
+                # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
+                offset = math.floor((seed_base - seed_floor) * 10000) + 500
+                RANDO_LINKS = [make_seed(preset, seed_floor - offset), make_seed(preset, seed_floor), make_seed(preset, seed_floor + offset)]
+                updated = True
+            elif args[0].startswith(RANDO_BASE):
+                RANDO_LINKS = args
+                updated = True
+            else:
+                await ctx.send(curry_message("That doesn't look like a seed or preset. Curry."))
+                print_links = False
+            await ctx.send(curry_message("Rando seed links {}updated".format("" if updated else "NOT ")))
+    if print_links:
+        await ctx.send(curry_message("Current rando seed links:"))
+        for i, link in enumerate(RANDO_LINKS):
+            await ctx.send(curry_message("Seed {}: {}".format(i+1, link)))
 
+def get_matching_preset(param):
+    preset = NULL_PRESET
+    # This is necessary to handle cases where one preset contains the name of another preset
+    if param in RANDO_PRESETS:
+        preset = param
+    else:
+        # Search for partial matches to allow e.g. 'star' to work for 'starsTournament'
+        matches = 0
+        for key in RANDO_PRESETS.keys():
+            if key.startswith(param):
+                preset = key
+                matches += 1
+        if matches != 1:
+            preset = NULL_PRESET
+    return preset
+
+def make_seed(preset, seed):
+    return "{}?P:{},,{}".format(RANDO_BASE, preset, seed)
 
 @client.command(description="Type '!leaderboard <category>' to display the current leaderboard, where category is Any%, Bookless% or 100% (For now, just standard categories)", brief="Fetch requested speedrun leaderboard")
 async def leaderboard(ctx, *args):
@@ -117,7 +168,7 @@ async def leaderboard(ctx, *args):
 
             await ctx.send(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, timestamp)))
 
-@client.command(description="Type '!countdown' to start a countdown from {}. Type '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")
+@client.command(description="Type '!countdown' to start a countdown from {}.\nType '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")
 async def countdown(ctx, *args):
     if args and not args[0].isdigit():
         await ctx.send(curry_message("I can't count starting from {}. Curry.".format(args[0])))
