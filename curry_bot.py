@@ -18,6 +18,7 @@ client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Drea
 BOT_ID = '631144975366619146'
 COUNTDOWN_START = 10
 SEEDS_TO_GENERATE = 3
+MAX_SEEDS = 7
 NULL_PRESET = ""
 RANDO_PRESETS = { \
                     'secondTower': 'Only Second Tower', \
@@ -92,7 +93,7 @@ async def bingo(ctx):
         await ctx.send(curry_message("...done. Room created at URL: {} with password: {}\nGo do your best! Don't stumble!".format(room_url, italics(password))))
 
 
-@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
+@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
 async def rando(ctx, *args):
     global RANDO_LINKS
     print_links = True
@@ -100,18 +101,27 @@ async def rando(ctx, *args):
         # Match on the start to make this command respond to 'presets' as well
         if args[0].startswith('preset'):
             print_links = False
-            for preset, description in RANDO_PRESETS.items():
-                await ctx.send(curry_message("Preset: {}, Description: {}".format(preset, description)))
+            await ctx.send('\n'.join(curry_message("Preset: {}, Description: {}".format(preset, description))) for preset, description in RANDO_PRESETS.items())
         else:
             updated = False
             preset = get_matching_preset(args[0])
             if preset:
-                await ctx.send(curry_message("Generating seeds..."))
+                quantity = SEEDS_TO_GENERATE
+                if len(args) >= 2:
+                    if args[1].isdigit():
+                        user_quantity = int(args[1])
+                        if user_quantity <= 0 or user_quantity > MAX_SEEDS:
+                            await ctx.send(curry_message("Number of seeds is limited to {}.".format(SEEDS_TO_GENERATE)))
+                        else:
+                            quantity = user_quantity
+                    else:
+                        await ctx.send(curry_message("I don't know how to generate {} seeds. Type '!help rando' for help.".format(args[1])))
+                await ctx.send(curry_message("Generating {} {} seeds...".format(quantity, RANDO_PRESETS[preset])))
                 seed_base = time.time() * 1000
                 seed_floor = math.floor(seed_base)
                 # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
-                offset = math.floor((seed_base - seed_floor) * 10000) + 500
-                RANDO_LINKS = [make_seed(preset, seed_floor - offset), make_seed(preset, seed_floor), make_seed(preset, seed_floor + offset)]
+                offset = math.floor((seed_base - seed_floor) * 1000) + 50
+                RANDO_LINKS = [make_seed(preset, seed_floor - offset * i) for i in range(quantity)]
                 updated = True
             elif args[0].startswith(RANDO_BASE):
                 RANDO_LINKS = args
