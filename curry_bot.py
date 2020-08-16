@@ -101,7 +101,7 @@ async def rando(ctx, *args):
         # Match on the start to make this command respond to 'presets' as well
         if args[0].startswith('preset'):
             print_links = False
-            await ctx.send('\n'.join(curry_message("Preset: {}, Description: {}".format(preset, description))) for preset, description in RANDO_PRESETS.items())
+            await ctx.send('\n'.join(curry_format("Preset: {}, Description: {}", preset, description) for preset, description in RANDO_PRESETS.items()))
         else:
             updated = False
             preset = get_matching_preset(args[0])
@@ -111,29 +111,33 @@ async def rando(ctx, *args):
                     if args[1].isdigit():
                         user_quantity = int(args[1])
                         if user_quantity <= 0 or user_quantity > MAX_SEEDS:
-                            await ctx.send(curry_message("Number of seeds is limited to {}.".format(SEEDS_TO_GENERATE)))
+                            await ctx.send(curry_format("Number of seeds is limited to {}.", MAX_SEEDS))
+                            quantity = 0
                         else:
                             quantity = user_quantity
                     else:
-                        await ctx.send(curry_message("I don't know how to generate {} seeds. Type '!help rando' for help.".format(args[1])))
-                await ctx.send(curry_message("Generating {} {} seeds...".format(quantity, RANDO_PRESETS[preset])))
-                seed_base = time.time() * 1000
-                seed_floor = math.floor(seed_base)
-                # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
-                offset = math.floor((seed_base - seed_floor) * 1000) + 50
-                RANDO_LINKS = [make_seed(preset, seed_floor - offset * i) for i in range(quantity)]
-                updated = True
+                        await ctx.send(curry_format("I don't know how to generate {} seeds. Type '!help rando' for help.", args[1]))
+                        quantity = 0
+                if quantity > 0:
+                    await ctx.send(curry_format("Generating {} {} seeds...", quantity, RANDO_PRESETS[preset]))
+                    seed_base = time.time() * 1000
+                    seed_floor = math.floor(seed_base)
+                    # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
+                    offset = math.floor((seed_base - seed_floor) * 1000) + 50
+                    RANDO_LINKS = [make_seed(preset, seed_floor - offset * i) for i in range(quantity)]
+                    updated = True
+                else:
+                    print_links = False
             elif args[0].startswith(RANDO_BASE):
                 RANDO_LINKS = args
                 updated = True
             else:
                 await ctx.send(curry_message("That doesn't look like a seed or preset. Curry."))
                 print_links = False
-            await ctx.send(curry_message("Rando seed links {}updated".format("" if updated else "NOT ")))
+            await ctx.send(curry_format("Rando seed links {}updated", "" if updated else "NOT "))
     if print_links:
         await ctx.send(curry_message("Current rando seed links:"))
-        for i, link in enumerate(RANDO_LINKS):
-            await ctx.send(curry_message("Seed {}: {}".format(i+1, link)))
+        await ctx.send('\n'.join(curry_format("Seed {}: {}", i+1, link) for i, link in enumerate(RANDO_LINKS)))
 
 def get_matching_preset(param):
     preset = NULL_PRESET
