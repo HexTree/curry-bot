@@ -4,6 +4,7 @@ from discord.ext.commands import Bot
 from bingo.bingo import get_room
 from discord_tools.auth import get_token
 from discord_tools.discord_formatting import *
+from randomwrapper.randomwrapper import dice_roll
 from speedrunapi.speedrunapi import *
 
 import re
@@ -139,6 +140,7 @@ async def rando(ctx, *args):
         await ctx.send(curry_message("Current rando seed links:"))
         await ctx.send('\n'.join(curry_format("Seed {}: {}", i+1, link) for i, link in enumerate(RANDO_LINKS)))
 
+
 def get_matching_preset(param):
     preset = NULL_PRESET
     # This is necessary to handle cases where one preset contains the name of another preset
@@ -155,8 +157,10 @@ def get_matching_preset(param):
             preset = NULL_PRESET
     return preset
 
+
 def make_seed(preset, seed):
     return "{}?P:{},,{}".format(RANDO_BASE, preset, seed)
+
 
 @client.command(description="Type '!leaderboard <category>' to display the current leaderboard, where category is Any%, Bookless% or 100% (For now, just standard categories)", brief="Fetch requested speedrun leaderboard")
 async def leaderboard(ctx, *args):
@@ -182,6 +186,7 @@ async def leaderboard(ctx, *args):
 
             await ctx.send(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, timestamp)))
 
+
 @client.command(description="Type '!countdown' to start a countdown from {}.\nType '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")
 async def countdown(ctx, *args):
     if args and not args[0].isdigit():
@@ -197,5 +202,45 @@ async def countdown(ctx, *args):
                 await ctx.send(curry_message("{}".format(start - n)))
                 time.sleep(1)
             await ctx.send(curry_message("Go! Curry."))
+
+
+@client.command(description="Flip a coin, resulting in Heads or Tails. Uses random bits from random.org", brief="Flip a coin")
+async def flip(ctx):
+    await ctx.send(curry_message("Flipping coin..."))
+    if dice_roll(1, 2) == 1:
+        await ctx.send(curry_message("Heads :crown:"))
+    else:
+        await ctx.send(curry_message("Tails :coin:"))
+
+
+@client.command(description="Roll n-sided dice. For instance '!roll 2d8' rolls two 8-sided dice and sums them. '!roll d20' rolls a 20-sided die. Uses random bits from random.org", brief="Roll dice")
+async def roll(ctx, *args):
+    if not args:
+        await ctx.send(curry_message("No argument supplied. Defaulting to d20..."))
+        num, sides = 1, 20
+    else:
+        arg = args[0].lower()
+        dice_pattern = r"^\d*d\d+$"
+        if re.match(dice_pattern, arg):
+            ints = [int(x) for x in arg.split('d') if x != '']
+            num = 1
+            if len(ints) > 1:
+                num = ints[0]
+            sides = ints[-1]
+        else:
+            await ctx.send(curry_message("Argument format not understood. See '!help roll'."))
+            return
+    if not (1<=num<=100 and 2<=sides<=100):
+        await ctx.send(curry_message("Numbers must be between 1d2 and 100d100 inclusive!"))
+        return
+    if num == 1:
+        await ctx.send(curry_message("Rolling a d{}...".format(sides)))
+    else:
+        await ctx.send(curry_message("Rolling {}d{}...".format(num, sides)))
+    result = dice_roll(num, sides)
+    await ctx.send(curry_message("Result: {}".format(result)))
+    if num == 1 and sides == 20 and result == 20:
+        await ctx.send(curry_message("Critical hit!"))
+
 
 client.run(TOKEN)
