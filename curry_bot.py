@@ -2,6 +2,7 @@ from discord import Game, Status
 from discord.ext.commands import Bot
 
 from bingo.bingo import get_room
+from common.common import Timestamp
 from discord_tools.auth import get_token
 from discord_tools.discord_formatting import *
 from randomwrapper.randomwrapper import dice_roll
@@ -61,10 +62,28 @@ async def on_message(message):
     if message.author.bot:
         return
     curry_pattern = r"^curry\W*$"
-    if re.match(curry_pattern, message.content.lower()):
+    gf_grind_pattern = r"^(\d+h )?\d{1,2}m \d{1,2}s \d{1,3}ms .+$"
+    if re.match(curry_pattern, message.content):
         await message.channel.send(curry_message("?????"))
+    elif message.channel.name == "december-gf-grind" and re.match(gf_grind_pattern, message.content):
+        # rebuild leaderboard
+        times = {}
+        async for temp_message in message.channel.history(limit=1000):
+            if re.match(gf_grind_pattern, temp_message.content):
+                temp_list = temp_message.content.split()
+                timestamp = Timestamp(' '.join(temp_list[:-1]))
+                link = temp_list[-1]
+                author = get_author(temp_message)
+                if author not in times or timestamp < times[author][0]:
+                    times[author] = (timestamp, link)
+        # temp_leaderboard = list(sorted(times.items(), key=lambda item: item[1][0]))
+        output = []
+        output.append(curry_message("*December Girlfriend% Grind current leaderboard*"))
+        for i, item in enumerate(sorted(times.items(), key=lambda x: x[1][0])):
+            output.append(curry_message("Rank: {}\tRunner: {}\t\tTime: {}\t\tLink: <{}>".format(i+1, item[0], str(item[1][0]), item[1][1])))
+        await message.channel.send('\n'.join(output))
     if BOT_ID in message.content:
-        await message.channel.send(curry_message("Hey {} {} Type !help for my commands.".format(get_author(message), NICOHEY)))
+        await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
     await client.process_commands(message)
 
 
@@ -138,7 +157,7 @@ async def rando(ctx, *args):
             await ctx.send(curry_format("Rando seed links {}updated", "" if updated else "NOT "))
     if print_links:
         await ctx.send(curry_message("Current rando seed links:"))
-        await ctx.send('\n'.join(curry_format("Seed {}: {}", i+1, link) for i, link in enumerate(RANDO_LINKS)))
+        await ctx.send('\n'.join(curry_format("Seed {}: <{}>", i+1, link) for i, link in enumerate(RANDO_LINKS)))
 
 
 def get_matching_preset(param):
@@ -230,7 +249,7 @@ async def roll(ctx, *args):
         else:
             await ctx.send(curry_message("Argument format not understood. See '!help roll'."))
             return
-    if not (1<=num<=100 and 2<=sides<=100):
+    if not (1 <= num <= 100 and 2 <= sides <= 100):
         await ctx.send(curry_message("Numbers must be between 1d2 and 100d100 inclusive!"))
         return
     if num == 1:
