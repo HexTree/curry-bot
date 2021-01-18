@@ -4,3 +4,4 @@ gspread
 oauth2client
 requests
 srcomapi
+python-Levenshtein-wheels

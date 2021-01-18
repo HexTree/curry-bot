@@ -2,6 +2,7 @@ from discord import Game, Status
 from discord.ext.commands import Bot
 
 from bingo.bingo import get_room
+from common.common import Timestamp
 from discord_tools.auth import get_token
 from discord_tools.discord_formatting import *
 from randomwrapper.randomwrapper import dice_roll
@@ -162,29 +163,20 @@ def make_seed(preset, seed):
     return "{}?P:{},,{}".format(RANDO_BASE, preset, seed)
 
 
-@client.command(description="Type '!leaderboard <category>' to display the current leaderboard, where category is Any%, Bookless% or 100% (For now, just standard categories)", brief="Fetch requested speedrun leaderboard")
+@client.command(description="Type '!leaderboard <category>' to display the current leaderboard", brief="Fetch requested speedrun leaderboard")
 async def leaderboard(ctx, *args):
     if not args:
         await ctx.send(curry_message("No category supplied. Type '!help leaderboard' for more info. Curry."))
-    await ctx.send(curry_message("Fetching leaderboard..."))
-    leaderboard = fetch_leaderboard(args[0])
-    if not leaderboard:
-        await ctx.send(curry_message("Something went wrong. Is it a valid category? Type '!help leaderboard' for more info. Curry."))
-    else:
-        for rank, player, time in leaderboard:
-            hours = time//3600
-            time %= 3600
-            mins = str(time//60).zfill(2)
-            time %= 60
-            secs = str(time).zfill(2)
-            if hours > 0:
-                timestamp = '{}h {}m {}s'.format(hours, mins, secs)
-            elif int(mins) > 0:
-                timestamp = '{}m {}s'.format(mins, secs)
-            else:
-                timestamp = '{}s'.format(secs)
-
-            await ctx.send(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, timestamp)))
+    strings = []
+    is_name = True
+    for output in fetch_leaderboard(' '.join(args)):
+        if is_name:
+            is_name = False
+            await ctx.send(curry_message("Fetching {} leaderboard...".format(output)))
+            continue
+        rank, player, seconds = output
+        strings.append(curry_message("Rank: {}\tRunner: {}\t\tTime: {}".format(rank, player, str(Timestamp.from_milliseconds(seconds*1000)))))
+    await ctx.send('\n'.join(strings))
 
 
 @client.command(description="Type '!countdown' to start a countdown from {}.\nType '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")

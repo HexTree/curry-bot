@@ -23,6 +23,19 @@ class Timestamp:  # a speedrun.com style timestamp e.g. "3h 53m 233s 380ms"
             elif arg.endswith("h"):
                 self.hours += int(arg[:-1])
 
+    @staticmethod
+    def from_milliseconds(ms):
+        t = Timestamp("0ms")
+        temp = ms
+        t.hours = temp // 3600000
+        temp %= 3600000
+        t.minutes = temp // 60000
+        temp %= 60000
+        t.seconds = temp // 1000
+        t.milliseconds = temp % 1000
+        return t
+
+
     def __str__(self):
         result = []
         if self.hours != 0:
@@ -30,7 +43,8 @@ class Timestamp:  # a speedrun.com style timestamp e.g. "3h 53m 233s 380ms"
         if not (self.hours == 0 and self.minutes == 0):
             result.append("{}m".format(self.minutes))
         result.append("{}s".format(self.seconds))
-        result.append("{}ms".format(self.milliseconds))
+        if self.milliseconds > 0:
+            result.append("{}ms".format(self.milliseconds))
         return ' '.join(result)
 
     def __eq__(self, other):
