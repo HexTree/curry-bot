@@ -88,7 +88,8 @@ async def bingo(ctx):
 
 @client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
 async def rando(ctx, *args):
-    await RandoCommandHandler(ctx, args).handle()
+    responses = RandoCommandHandler(args).handle()
+    await ctx.send('\n'.join(curry_message(response) for response in responses))
 
 
 @client.command(description="Type '!leaderboard <category>' to display the current leaderboard", brief="Fetch requested speedrun leaderboard")

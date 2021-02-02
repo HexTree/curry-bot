@@ -93,52 +93,38 @@ class AdRandomizerParamsDescriptorSelector:
 class RandoCommandHandler:
     RANDO_LINKS = [SeedGenerator.RANDO_BASE]
 
-    def __init__(self, ctx, args):
-        self._ctx = ctx
+    def __init__(self, args):
         self._args = args
 
-    async def handle(self):
+    def handle(self):
         if len(self._args) == 0:
-            await self._print_current_rando_seed_links()
-            return
+            return self._current_rando_seed_links()
         preset_name = self._args[0]
         if preset_name.startswith('preset'):
-            await self._print_presets()
+            return self._available_presets()
         else:
-            await self._generate_and_print_seeds(preset_name)
+            return self._generate_seeds(preset_name)
 
-    async def _print_current_rando_seed_links(self):
-        await self._ctx.send(curry_message("Current rando seed links:"))
-        await self._ctx.send(
-            '\n'.join(
-                curry_message(f"Seed {i + 1}: <{link}>")
-                for i, link
-                in enumerate(self.RANDO_LINKS)))
+    def _current_rando_seed_links(self):
+        return ['Current rando seed links:'] + [f"Seed {i + 1}: <{link}>" for i, link in enumerate(self.RANDO_LINKS)]
 
-    async def _print_presets(self):
-        await self._ctx.send(
-            '\n'.join(
-                curry_message(f"Preset: {preset}, Description: {description}")
-                for preset, (description, _)
-                in AdRandomizerParamsDescriptorSelector.all_presets().items()))
+    def _available_presets(self):
+        return [
+            f"Preset: {preset}, Description: {description}"
+            for preset, (description, _)
+            in AdRandomizerParamsDescriptorSelector.all_presets().items()
+            ]
 
-    async def _generate_and_print_seeds(self, preset_name):
+    def _generate_seeds(self, preset_name):
         try:
             params_descriptor = AdRandomizerParamsDescriptorSelector.select(preset_name)
             description, params = params_descriptor
             seeds_number = self._parse_seeds_number()
-            await ctx.send(curry_message(f"Generating {seeds_number} {description} seeds..."))
             RandoCommandHandler.RANDO_LINKS = SeedGenerator(params, seeds_number).generate()
-            await ctx.send(curry_message("Rando seed links updated"))
-            await ctx.send(curry_message("Current rando seed links:"))
-            await ctx.send(
-                '\n'.join(
-                    curry_message(f"Seed {i + 1}: <{link}>")
-                    for i, link
-                    in enumerate(self.RANDO_LINKS)))
+            return [f"Generating {seeds_number} {description} seeds...", "Rando seed links updated"] + \
+                self._current_rando_seed_links()
         except CurryError as exc:
-            await self._ctx.send(curry_message(exc.error_message))
-            await ctx.send(curry_message("Rando seed links NOT updated"))
+            return [exc.error_message, "Rando seed links NOT updated"]
 
     def _parse_seeds_number(self):
         DEFAULT_SEEDS_NUMBER = 3
