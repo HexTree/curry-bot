@@ -1,11 +1,8 @@
-from googleapi.googleapi import *
 from bingo.bingosync import *
 
+import csv
 import json
 import random
-
-CREDS_PATH = 'bingo/creds.json'
-SHEET_NAME = 'Azure Dreams Bingo Goals'
 
 
 class Card:
@@ -24,15 +21,18 @@ class Card:
 
 
 def get_room(name=None):
-    # fetch sheet using google api
-    sheet = get_sheet(CREDS_PATH, SHEET_NAME)
-
-    # create cards
+    # create cards from csv
     cards = []
-    for row in sheet.get_all_records(head=2):
-        card = Card(row['title'], row['description'], row['length_minutes'])
-        if card.title:
-            cards.append(card)
+    with open('bingo/bingo_cards.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_num = 0
+        for row in csv_reader:
+            line_num += 1
+            if line_num == 1:
+                continue
+            card = Card(row[0], row[1], row[2])
+            if card.title:
+                cards.append(card)
 
     # sample and transform to json
     data = json.dumps([{"name": card.get_text()} for card in random.sample(cards, 25)])
