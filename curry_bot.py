@@ -1,6 +1,7 @@
 from discord import Game, Status
 from discord.ext.commands import Bot
 
+from ad_rando.seed_generator import RandoCommandHandler
 from bingo.bingo import get_room
 from common.common import Timestamp
 from discord_tools.auth import get_token
@@ -14,20 +15,10 @@ import math
 
 
 TOKEN = get_token()
-RANDO_BASE = 'https://adrando.com/'
-RANDO_LINKS = ['https://adrando.com/']
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
 BOT_ID = '631144975366619146'
 COUNTDOWN_START = 10
 SEEDS_TO_GENERATE = 3
-MAX_SEEDS = 7
-NULL_PRESET = ""
-RANDO_PRESETS = { \
-                    'secondTower': 'Only Second Tower', \
-                    'secondTowerRun': 'Speedrun Second Tower', \
-                    'starsTournament': 'STARS Tournament', \
-                    'tournament': 'RM3T #2 Tournament' \
-                }
 
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
@@ -97,70 +88,7 @@ async def bingo(ctx):
 
 @client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
 async def rando(ctx, *args):
-    global RANDO_LINKS
-    print_links = True
-    if len(args) >= 1:
-        # Match on the start to make this command respond to 'presets' as well
-        if args[0].startswith('preset'):
-            print_links = False
-            await ctx.send('\n'.join(curry_format("Preset: {}, Description: {}", preset, description) for preset, description in RANDO_PRESETS.items()))
-        else:
-            updated = False
-            preset = get_matching_preset(args[0])
-            if preset:
-                quantity = SEEDS_TO_GENERATE
-                if len(args) >= 2:
-                    if args[1].isdigit():
-                        user_quantity = int(args[1])
-                        if user_quantity <= 0 or user_quantity > MAX_SEEDS:
-                            await ctx.send(curry_format("Number of seeds is limited to {}.", MAX_SEEDS))
-                            quantity = 0
-                        else:
-                            quantity = user_quantity
-                    else:
-                        await ctx.send(curry_format("I don't know how to generate {} seeds. Type '!help rando' for help.", args[1]))
-                        quantity = 0
-                if quantity > 0:
-                    await ctx.send(curry_format("Generating {} {} seeds...", quantity, RANDO_PRESETS[preset]))
-                    seed_base = time.time() * 1000
-                    seed_floor = math.floor(seed_base)
-                    # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
-                    offset = math.floor((seed_base - seed_floor) * 1000) + 50
-                    RANDO_LINKS = [make_seed(preset, seed_floor - offset * i) for i in range(quantity)]
-                    updated = True
-                else:
-                    print_links = False
-            elif args[0].startswith(RANDO_BASE):
-                RANDO_LINKS = args
-                updated = True
-            else:
-                await ctx.send(curry_message("That doesn't look like a seed or preset. Curry."))
-                print_links = False
-            await ctx.send(curry_format("Rando seed links {}updated", "" if updated else "NOT "))
-    if print_links:
-        await ctx.send(curry_message("Current rando seed links:"))
-        await ctx.send('\n'.join(curry_format("Seed {}: <{}>", i+1, link) for i, link in enumerate(RANDO_LINKS)))
-
-
-def get_matching_preset(param):
-    preset = NULL_PRESET
-    # This is necessary to handle cases where one preset contains the name of another preset
-    if param in RANDO_PRESETS:
-        preset = param
-    else:
-        # Search for partial matches to allow e.g. 'star' to work for 'starsTournament'
-        matches = 0
-        for key in RANDO_PRESETS.keys():
-            if key.startswith(param):
-                preset = key
-                matches += 1
-        if matches != 1:
-            preset = NULL_PRESET
-    return preset
-
-
-def make_seed(preset, seed):
-    return "{}?P:{},,{}".format(RANDO_BASE, preset, seed)
+    await RandoCommandHandler(ctx, args).handle()
 
 
 @client.command(description="Type '!leaderboard <category>' to display the current leaderboard", brief="Fetch requested speedrun leaderboard")
