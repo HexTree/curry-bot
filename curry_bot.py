@@ -11,7 +11,6 @@ from speedrunapi.speedrunapi import *
 
 import re
 import time
-import math
 
 
 TOKEN = get_token()
@@ -53,7 +52,7 @@ async def on_message(message):
     if message.author.bot:
         return
     curry_pattern = r"^curry\W*$"
-    if re.match(curry_pattern, message.content):
+    if re.match(curry_pattern, message.content.lower()):
         await message.channel.send(curry_message("?????"))
     if BOT_ID in message.content:
         await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
@@ -68,11 +67,17 @@ async def hello(ctx):
 @client.command(description="Crystal Curry", brief="Curry")
 async def curry(ctx):
     await ctx.send(curry_message("The crystallization of the spices pop up here and there like crystal balls."))
+    time.sleep(0.5)
     await ctx.send(curry_message("The curry made here is not aiming to be the high class curry at your common Indian restaurant,"))
+    time.sleep(0.5)
     await ctx.send(curry_message("but more something you would enjoy at home, bringing out that homely flavor."))
+    time.sleep(0.5)
     await ctx.send(curry_message("It's a taste that does not discriminate, that is fit for everyone."))
+    time.sleep(0.5)
     await ctx.send(curry_message("Having said that, though, it's not something that you could make at home."))
+    time.sleep(0.5)
     await ctx.send(curry_message("The smoothness and depth in it's taste is something only a professional chef could possibly make."))
+    time.sleep(1.5)
     await ctx.send(curry_message("Munch Munch"))
 
 
