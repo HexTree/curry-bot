@@ -148,7 +148,7 @@ class AdRandomizerParamsDescriptorSelector:
 
 
 class RandoCommandHandler:
-    RANDO_LINKS = [SeedGenerator.RANDO_BASE]
+    RANDO_LINKS = [SeedsGenerator.RANDO_BASE]
 
     def __init__(self, args):
         self._args = args
@@ -168,7 +168,7 @@ class RandoCommandHandler:
     def _available_presets(self):
         return [
             f"Preset: {preset}, Description: {description}"
-            for preset, (description, _)
+            for preset, (description, _, _)
             in AdRandomizerParamsDescriptorSelector.all_presets().items()
             ]
 
