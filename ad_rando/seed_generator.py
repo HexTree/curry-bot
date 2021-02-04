@@ -1,5 +1,7 @@
-import time
+import hashlib
 import math
+import struct
+import time
 
 
 class CurryError(BaseException):
@@ -8,18 +10,37 @@ class CurryError(BaseException):
 
 
 class SeedGenerator:
+    def __init__(self, validator):
+        self._validator = validator
+        self._seed_base = time.time() * 1000
+        self._seed_floor = math.floor(self._seed_base)
+        # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
+        self._offset = math.floor((self._seed_base - self._seed_floor) * 1000) + 50
+        self._index = 0
+
+    def next(self):
+        seed = self._generate()
+        while not self._validator.validate(seed):
+            seed = self._generate()
+        return seed
+
+    def _generate(self):
+        seed = self._seed_floor - self._offset * self._index
+        self._index += 1
+        return seed
+
+
+class SeedsGenerator:
     RANDO_BASE = 'https://adrando.com/'
 
-    def __init__(self, randomizer_params, seeds_number):
+    def __init__(self, randomizer_params, validator, seeds_number):
         self._randomizer_params = randomizer_params
+        self._validator = validator
         self._seeds_number = seeds_number
 
     def generate(self):
-        seed_base = time.time() * 1000
-        seed_floor = math.floor(seed_base)
-        # Use the nanosecond portion of the time as a pseudo-random offset, plus a constant in case that happens to be 0
-        offset = math.floor((seed_base - seed_floor) * 1000) + 50
-        return [self._create_adrando_link(seed_floor - offset * i) for i in range(self._seeds_number)]
+        seed_generator = SeedGenerator(self._validator)
+        return [self._create_adrando_link(seed_generator.next()) for _ in range(self._seeds_number)]
 
     def _create_adrando_link(self, seed):
         return f"{self.RANDO_BASE}?{self._randomizer_params.params()},,{seed}"
@@ -46,6 +67,38 @@ class ManualRandomizerParams(AdRandomizerParams):
         return self._params_string
 
 
+class SeedValidator:
+    def validate(self, seed):
+        raise NotImplementedError(f'{self.__class__.__name__}.{self.validate}')
+
+
+class NoRestrictionsSeedValidator(SeedValidator):
+    def validate(self, seed):
+        return True
+
+
+class NoHiKewneSeedValidator(SeedValidator):
+    STARTER_MONSTER_HASH_HEX_INDEX = 6
+    MONSTERS_NUMBER = 45
+    HIKEWNE_MONSTER_ID = 1
+
+    def validate(self, seed):
+        return self._calculate_starter_monster_id(self._calculate_sha256(seed)) != self.HIKEWNE_MONSTER_ID
+
+    def _calculate_sha256(self, seed):
+        m = hashlib.sha256()
+        m.update(str.encode(str(seed)))
+        return m.digest()
+
+    def _calculate_starter_monster_id(self, seed_hash):
+        return (1 + self._calculate_used_hash_hex(seed_hash) % self.MONSTERS_NUMBER)
+
+    def _calculate_used_hash_hex(self, seed_hash):
+        seed_hash_start_byte = self.STARTER_MONSTER_HASH_HEX_INDEX * 4
+        seed_hash_end_byte = seed_hash_start_byte + 4
+        return struct.unpack('!i', seed_hash[seed_hash_start_byte:seed_hash_end_byte])[0]
+
+
 class AdRandomizerParamsDescriptorSelector:
     ADRANDO_PRESETS = {
         'secondTower': 'Only Second Tower',
@@ -54,7 +107,11 @@ class AdRandomizerParamsDescriptorSelector:
         'tournament': 'RM3T #2 Tournament'
     }
     MANUAL_PRESETS = {
-        'randomToolkit': ('RM3T #3 Random Toolkit Tournament', ManualRandomizerParams('dE:-2,fh:1,iInS:0,txX'))
+        'randomToolkit': (
+            'RM3T #3 Random Toolkit Tournament',
+            ManualRandomizerParams('dE:-2,fh:1,iInS:0,txX'),
+            NoHiKewneSeedValidator()
+        )
     }
 
     @classmethod
@@ -85,7 +142,7 @@ class AdRandomizerParamsDescriptorSelector:
     @classmethod
     def _adrando_presets(cls):
         return dict(
-            (preset_name, (description, FromPresetRandomizerParams(preset_name)))
+            (preset_name, (description, FromPresetRandomizerParams(preset_name), NoRestrictionsSeedValidator()))
             for preset_name, description
             in cls.ADRANDO_PRESETS.items())
 
@@ -118,9 +175,9 @@ class RandoCommandHandler:
     def _generate_seeds(self, preset_name):
         try:
             params_descriptor = AdRandomizerParamsDescriptorSelector.select(preset_name)
-            description, params = params_descriptor
+            description, params, validator = params_descriptor
             seeds_number = self._parse_seeds_number()
-            RandoCommandHandler.RANDO_LINKS = SeedGenerator(params, seeds_number).generate()
+            RandoCommandHandler.RANDO_LINKS = SeedsGenerator(params, validator, seeds_number).generate()
             return [f"Generating {seeds_number} {description} seeds...", "Rando seed links updated"] + \
                 self._current_rando_seed_links()
         except CurryError as exc:
