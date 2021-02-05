@@ -96,7 +96,7 @@ class NoHiKewneSeedValidator(SeedValidator):
     def _calculate_used_hash_hex(self, seed_hash):
         seed_hash_start_byte = self.STARTER_MONSTER_HASH_HEX_INDEX * 4
         seed_hash_end_byte = seed_hash_start_byte + 4
-        return struct.unpack('!i', seed_hash[seed_hash_start_byte:seed_hash_end_byte])[0]
+        return int(math.fabs(struct.unpack('!i', seed_hash[seed_hash_start_byte:seed_hash_end_byte])[0]))
 
 
 class AdRandomizerParamsDescriptorSelector:
