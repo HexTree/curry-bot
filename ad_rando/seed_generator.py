@@ -111,6 +111,11 @@ class AdRandomizerParamsDescriptorSelector:
             'RM3T #3 Random Toolkit Tournament',
             ManualRandomizerParams('dE:-2,fh:1,iInS:0,txX'),
             NoHiKewneSeedValidator()
+        ),
+        'sde': (
+            'RM3T #5 Random Toolkit Tournament 2: State Display Edition',
+            ManualRandomizerParams('BdDE:-2,fh:1,iIlnS:0,txX'),
+            NoHiKewneSeedValidator()
         )
     }
 
