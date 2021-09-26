@@ -168,5 +168,15 @@ async def roll(ctx, *args):
     if num == 1 and sides == 20 and result == 20:
         await ctx.send(curry_message("Critical hit!"))
 
+# COMMANDS
+@client.command(description="About Curry Bot", brief="About Curry Bot")
+async def about(ctx):
+    await ctx.send(curry_message("Curry Bot is an open-source discord bot, available at https://github.com/HexTree/curry-bot\n")
+                   + curry_message("On the GitHub page you can find dev contacts, and submit bug/feedback.\n")
+                   + curry_message("The bot is run on an Amazon EC2 instance, 24/7. The server upkeep costs about $6 per month.\n")
+                   + curry_message("If you wish to support the running of the Bot, and future updates, you can donate via the following:\n")
+                   + curry_message("Ko-fi: <https://ko-fi.com/hextree>\n")
+                   + curry_message("Bitcoin: bc1qdw5hfljv5afrcqvm62c6pn5e98q2rvzj9558yx\n"))
+
 
 client.run(TOKEN)
