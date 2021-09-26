@@ -21,7 +21,7 @@ SEEDS_TO_GENERATE = 3
 
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
-
+HORZASHOOK = '<:Horzashook:717744240670539788>'
 
 # EVENTS
 @client.event
@@ -54,6 +54,10 @@ async def on_message(message):
     curry_pattern = r"^curry\W*$"
     if re.match(curry_pattern, message.content.lower()):
         await message.channel.send(curry_message("?????"))
+    if message.content.lower() in ("good bot", "good bot.", "good bot!"):
+        await message.channel.send(curry_message("{}. Aw, shucks!".format(get_author(message))))
+    if message.content.lower() in ("bad bot", "bad bot.", "bad bot!"):
+        await message.channel.send(HORZASHOOK)
     if BOT_ID in message.content:
         await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
     await client.process_commands(message)
