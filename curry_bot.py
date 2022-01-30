@@ -4,11 +4,17 @@ from discord.ext.commands import Bot
 from ad_rando.seed_generator import RandoCommandHandler
 from bingo.bingo import get_room
 from common.common import Timestamp
+from curry_quest.config import Config as CurryQuestConfig
+from curry_quest.curry_quest import CurryQuest
+from curry_quest.controller import Controller as CurryQuestController
 from discord_tools.auth import get_token
 from discord_tools.discord_formatting import *
 from randomwrapper.randomwrapper import dice_roll
 from speedrunapi.speedrunapi import *
 
+import argparse
+import asyncio
+import logging.handlers
 import re
 import time
 
@@ -23,10 +29,69 @@ SEEDS_TO_GENERATE = 3
 NICOHEY = '<:NicoHey:635538084062298122>'
 HORZASHOOK = '<:Horzashook:717744240670539788>'
 
+logger = logging.getLogger(__name__)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('curry_quest_config', type=argparse.FileType('r'))
+    parser.add_argument('-d', '--state_files_directory', default='.')
+    return parser.parse_args()
+
+
+def configure_logger():
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    file_handler = logging.handlers.RotatingFileHandler(
+        'curry_quest.log',
+        maxBytes=megabytes_to_bytes(100),
+        backupCount=1)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(stream_handler)
+
+
+def megabytes_to_bytes(mb):
+    return mb * 1000 ** 2
+
+
+args = parse_args()
+configure_logger()
+curry_quest_config = CurryQuestConfig.from_file(args.curry_quest_config)
+curry_quest_controller = CurryQuestController(curry_quest_config, args.state_files_directory)
+curry_quest_client = CurryQuest(curry_quest_controller, curry_quest_config)
+
 # EVENTS
 @client.event
 async def on_ready():
     print("Logged in as " + client.user.name)
+    curry_quest_channel = client.get_channel(curry_quest_config.channel_id)
+    curry_quest_admin_channel = client.get_channel(curry_quest_config.admin_channel_id)
+    logger.info(f"Curry quest channel: {curry_quest_channel.name}")
+    logger.info(f"Curry quest admin channel: {curry_quest_admin_channel.name}")
+    curry_quest_admins = []
+    for admin_id in curry_quest_config.admins:
+        user = await client.fetch_user(admin_id)
+        if user is None:
+            logger.warning(f"Admin with ID {admin_id} does not exist.")
+        else:
+            curry_quest_admins.append(user.display_name)
+    logger.info(f"Curry quest admins: {curry_quest_admins}")
+
+    def send_curry_quest_message(message):
+        asyncio.create_task(curry_quest_channel.send(message))
+        return True
+
+    def send_curry_quest_admin_message(message):
+        asyncio.create_task(curry_quest_admin_channel.send(message))
+        return True
+
+    curry_quest_client.start(send_curry_quest_message, send_curry_quest_admin_message)
 
 
 @client.event
@@ -38,7 +103,7 @@ async def on_disconnect():
 @client.event
 async def on_error(event_method, *args, **kwargs):
     await client.change_presence(afk=True)
-    print("Error")
+    print(f"Error {event_method} {args} {kwargs}")
 
 
 # COMMANDS
@@ -51,16 +116,19 @@ async def debug(ctx):
 async def on_message(message):
     if message.author.bot:
         return
-    curry_pattern = r"^curry\W*$"
-    if re.match(curry_pattern, message.content.lower()):
-        await message.channel.send(curry_message("?????"))
-    if message.content.lower() in ("good bot", "good bot.", "good bot!"):
-        await message.channel.send(curry_message("{}. Aw, shucks!".format(get_author(message))))
-    if message.content.lower() in ("bad bot", "bad bot.", "bad bot!"):
-        await message.channel.send(HORZASHOOK)
-    if BOT_ID in message.content:
-        await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
-    await client.process_commands(message)
+    if curry_quest_client.is_curry_quest_message(message):
+        curry_quest_client.process_message(message)
+    else:
+        curry_pattern = r"^curry\W*$"
+        if re.match(curry_pattern, message.content.lower()):
+            await message.channel.send(curry_message("?????"))
+        if message.content.lower() in ("good bot", "good bot.", "good bot!"):
+            await message.channel.send(curry_message("{}. Aw, shucks!".format(get_author(message))))
+        if message.content.lower() in ("bad bot", "bad bot.", "bad bot!"):
+            await message.channel.send(HORZASHOOK)
+        if BOT_ID in message.content:
+            await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
+        await client.process_commands(message)
 
 
 @client.command(description="Say Hello", brief="Say Hello")
