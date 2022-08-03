@@ -1,3 +1,5 @@
+import random
+
 from discord import Game, Status
 from discord.ext.commands import Bot
 
@@ -54,11 +56,19 @@ async def on_message(message):
     curry_pattern = r"^curry\W*$"
     if re.match(curry_pattern, message.content.lower()):
         await message.channel.send(curry_message("?????"))
-    if message.content.lower() in ("good bot", "good bot.", "good bot!"):
+    elif message.content.lower() in ("good bot", "good bot.", "good bot!"):
         await message.channel.send(curry_message("{}. Aw, shucks!".format(get_author(message))))
-    if message.content.lower() in ("bad bot", "bad bot.", "bad bot!"):
+    elif message.content.lower() in ("bad bot", "bad bot.", "bad bot!"):
         await message.channel.send(HORZASHOOK)
-    if BOT_ID in message.content:
+    elif ("earthquake%" in message.content.lower() or "eq%" in message.content.lower()) and random.random() < 0.5:
+        await message.channel.send(curry_message("ANALYSING EARTHQUAKE%..."))
+        time.sleep(2)
+        await message.channel.send(curry_message("A STRANGE GAME."))
+        time.sleep(0.5)
+        await message.channel.send(curry_message("THE ONLY WINNING MOVE IS\nNOT TO PLAY."))
+        time.sleep(1)
+        await message.channel.send(curry_message("HOW ABOUT A NICE GAME OF CURRY%?"))
+    elif BOT_ID in message.content:
         await message.channel.send(curry_message("Hey {} {}".format(get_author(message), NICOHEY)))
     await client.process_commands(message)
 
