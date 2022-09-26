@@ -116,6 +116,11 @@ class AdRandomizerParamsDescriptorSelector:
             'RM3T #5 Random Toolkit Tournament 2: State Display Edition',
             ManualRandomizerParams('BdDE:-2,fh:1,iIlnS:0,txX'),
             NoHiKewneSeedValidator()
+        ),
+        'riders': (
+            'Riders of the Sky Tournament',
+            ManualRandomizerParams('cdfFiltux,94b4'),
+            NoRestrictionsSeedValidator()
         )
     }
 
