@@ -119,7 +119,7 @@ class AdRandomizerParamsDescriptorSelector:
         ),
         'riders': (
             'Riders of the Sky Tournament',
-            ManualRandomizerParams('cdfFiltux,94b4'),
+            ManualRandomizerParams('cdfFiltux'),
             NoRestrictionsSeedValidator()
         )
     }
