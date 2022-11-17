@@ -21,7 +21,6 @@ intents.message_content = True
 client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"), intents=intents)
 BOT_ID = '631144975366619146'
 COUNTDOWN_START = 10
-SEEDS_TO_GENERATE = 3
 
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
@@ -107,7 +106,7 @@ async def bingo(ctx):
         await ctx.send(curry_message("...done. Room created at URL: {} with password: {}\nGo do your best! Don't stumble!".format(room_url, italics(password))))
 
 
-@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate {} seeds of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.".format(SEEDS_TO_GENERATE), brief="Make or get current rando seeds")
+@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate a seed of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.", brief="Make or get current rando seeds")
 async def rando(ctx, *args):
     responses = RandoCommandHandler(args).handle()
     await ctx.send('\n'.join(curry_message(response) for response in responses))

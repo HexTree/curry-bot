@@ -188,13 +188,13 @@ class RandoCommandHandler:
             description, params, validator = params_descriptor
             seeds_number = self._parse_seeds_number()
             RandoCommandHandler.RANDO_LINKS = SeedsGenerator(params, validator, seeds_number).generate()
-            return [f"Generating {seeds_number} {description} seeds...", "Rando seed links updated"] + \
+            return [f"Generating {seeds_number} {description} seed{'s' if seeds_number>1 else ''}..."] + \
                 self._current_rando_seed_links()
         except CurryError as exc:
             return [exc.error_message, "Rando seed links NOT updated"]
 
     def _parse_seeds_number(self):
-        DEFAULT_SEEDS_NUMBER = 3
+        DEFAULT_SEEDS_NUMBER = 1
         MAX_SEEDS_NUMBER = 7
 
         if len(self._args) < 2:
