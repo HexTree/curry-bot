@@ -1,7 +1,7 @@
 import random
 import requests
 
-URL = 'http://www.random.org/integers/'
+URL = 'https://www.random.org/integers/'
 DATA = {'base': 10,
         'format': 'plain',
         'rnd': 'new'}

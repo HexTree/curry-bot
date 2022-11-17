@@ -35,7 +35,6 @@ class Timestamp:  # a speedrun.com style timestamp e.g. "3h 53m 233s 380ms"
         t.milliseconds = temp % 1000
         return t
 
-
     def __str__(self):
         result = []
         if self.hours != 0:

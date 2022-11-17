@@ -1,6 +1,6 @@
 import random
 
-from discord import Game, Status
+from discord import Game, Intents, Status
 from discord.ext.commands import Bot
 
 from ad_rando.seed_generator import RandoCommandHandler
@@ -16,7 +16,9 @@ import time
 
 
 TOKEN = get_token()
-client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"))
+intents = Intents.default()
+intents.message_content = True
+client = Bot(command_prefix='!', status=Status.online, activity=Game("Azure Dreams"), intents=intents)
 BOT_ID = '631144975366619146'
 COUNTDOWN_START = 10
 SEEDS_TO_GENERATE = 3
@@ -33,13 +35,13 @@ async def on_ready():
 
 @client.event
 async def on_disconnect():
-    await client.change_presence(afk=True)
+    await client.change_presence(activity=None, status=Status.offline)
     print("Disconnect")
 
 
 @client.event
 async def on_error(event_method, *args, **kwargs):
-    await client.change_presence(afk=True)
+    await client.change_presence(activity=None, status=Status.offline)
     print("Error")
 
 
