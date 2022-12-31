@@ -23,6 +23,11 @@ def create_room(name, passphrase, bingo_data):
     data['csrfmiddlewaretoken'] = csrf
     data['custom_json'] = bingo_data
     data['passphrase'] = passphrase
+    data['game_type'] = 18
+    data['variant_type'] = 172
+    data['seed'] = ''
+    data['lockout_mode'] = 1
+    data['hide_card'] = 'on'
 
     # perform POST to create room
     res = requests.post(URL, cookies=cookies, data=data)
