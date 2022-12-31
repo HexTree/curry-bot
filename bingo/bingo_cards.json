@@ -63,7 +63,7 @@
         "name": "Fur (Good): Give Octopus Dumplings to Fur"
     },
     {
-        "name": "Fur (Evil): Make Fur mad at you; \"I don't like you either, Koh\""
+        "name": "Fur (Evil): Make Fur swear at you (deny dumplings) \"You mean, lazy, (beep!)\""
     },
     {
         "name": "Patty (Good): Have Patty serve you Octopus Wieners"
@@ -75,7 +75,7 @@
         "name": "Vivian (Good): Offer Vivian flowers after her dance at the theatre"
     },
     {
-        "name": "Vivian (Evil): Tell Vivian you missed her final, lead performance"
+        "name": "Vivian (Evil): Leave Vivian to gamble at the Casino forever"
     },
     {
         "name": "Mia (Good): Return Mia's glasses"
@@ -132,13 +132,16 @@
         "name": "Barbell Toss: Beat the gym record at Barbell Toss (20 points)"
     },
     {
-        "name": "Koh-Boat Show: Complete theatre routine as a U-boat (use U-boat glitch)"
+        "name": "Koh-Boat Show: Complete theatre routine as a U-boat (use floor glitch)"
     },
     {
         "name": "3 Bonks: Get knocked out by Fon (fail comedy act)"
     },
     {
-        "name": "Fountain climb: Stand still on top of the Fountain"
+        "name": "Fountain climb: Stand on top of the Fountain"
+    },
+    {
+        "name": "Headstand: Stand on top of spinning animal head (Cow? Pig?)"
     },
     {
         "name": "Ball of Wisdom: Teach familiar a spell from a ball"
@@ -147,7 +150,7 @@
         "name": "Glitched Entry: Perform a Glitched Entry to the tower"
     },
     {
-        "name": "Millionaire: Amass 1,000,000 Gold"
+        "name": "Millionaire: Amass at least 1,000,000 Gold"
     },
     {
         "name": "Oleem sacrifice: Sacrifice a home-hatched familiar with Oleem"
@@ -177,7 +180,7 @@
         "name": "Our Powers Combined: Acquire all 3 elements of either sword/shield/wand/seed/crystal"
     },
     {
-        "name": "Troll combo: Have Hammer, Bowgun and Sword"
+        "name": "Troll combo: Have both a troll melee and troll ranged weapon"
     },
     {
         "name": "Cold Fusion: Fuse two water monsters"
