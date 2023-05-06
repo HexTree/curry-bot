@@ -3,7 +3,7 @@ import random
 from discord import Game, Intents, Status
 from discord.ext.commands import Bot
 
-from ad_rando.seed_generator import RandoCommandHandler
+from ad_rando.seed_generator import AdrandoCommandHandler
 from bingo.bingo import get_room
 from common.common import Timestamp
 from discord_tools.auth import get_token
@@ -106,9 +106,15 @@ async def bingo(ctx):
         await ctx.send(curry_message("...done. Room created at URL: {} with password: {}\nGo do your best! Don't stumble!".format(room_url, italics(password))))
 
 
-@client.command(description="Type '!rando' to fetch the current seed link runners are playing on.\nType '!rando <link>' to overwrite current seed with a new one of your choice.\nType '!rando presets' for a list of presets.\nType '!rando <preset>' to generate a seed of the given preset.\nType '!rando <preset> <quantity>' to generate quantity seeds of the given preset.", brief="Make or get current rando seeds")
+@client.command(description="Type '!adrando' to fetch the current seed link runners are playing on.\nType '!adrando <link>' to overwrite current seed with a new one of your choice.\nType '!adrando presets' for a list of presets.\nType '!adrando <preset>' to generate a seed of the given preset.\nType '!adrando <preset> <quantity>' to generate quantity seeds of the given preset.", brief="Make or get current adrando seeds")
+async def adrando(ctx, *args):
+    responses = AdrandoCommandHandler(args).handle()
+    await ctx.send('\n'.join(curry_message(response) for response in responses))
+
+
+@client.command(description="deprecated, same as adrando")
 async def rando(ctx, *args):
-    responses = RandoCommandHandler(args).handle()
+    responses = AdrandoCommandHandler(args).handle()
     await ctx.send('\n'.join(curry_message(response) for response in responses))
 
 

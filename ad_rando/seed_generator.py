@@ -31,7 +31,7 @@ class SeedGenerator:
 
 
 class SeedsGenerator:
-    RANDO_BASE = 'https://adrando.com/'
+    ADRANDO_BASE = 'https://adrando.com/'
 
     def __init__(self, randomizer_params, validator, seeds_number):
         self._randomizer_params = randomizer_params
@@ -43,7 +43,7 @@ class SeedsGenerator:
         return [self._create_adrando_link(seed_generator.next()) for _ in range(self._seeds_number)]
 
     def _create_adrando_link(self, seed):
-        return f"{self.RANDO_BASE}?{self._randomizer_params.params()},,{seed}"
+        return f"{self.ADRANDO_BASE}?{self._randomizer_params.params()},,{seed}"
 
 
 class AdRandomizerParams:
@@ -104,12 +104,17 @@ class AdRandomizerParamsDescriptorSelector:
         'secondtower': 'Only Second Tower',
         'secondtowerrun': 'Speedrun Second Tower',
         'starstournament': 'STARS Tournament',
-        'tournament': 'RM3T #2 Tournament'
+        'rm3t2': 'RM3T #2 Tournament'
     }
     MANUAL_PRESETS = {
-        'randomtoolkit': (
+        'rm3t3': (
             'RM3T #3 Random Toolkit Tournament',
             ManualRandomizerParams('dE:-2,fh:1,iInS:0,txX'),
+            NoHiKewneSeedValidator()
+        ),
+        'randomtoolkit': (
+            'RM3T #6 Random Toolkit Tournament',
+            ManualRandomizerParams('dE:-2,fh:1,iInS:0,tux'),
             NoHiKewneSeedValidator()
         ),
         'sde': (
@@ -157,8 +162,8 @@ class AdRandomizerParamsDescriptorSelector:
             in cls.ADRANDO_PRESETS.items())
 
 
-class RandoCommandHandler:
-    RANDO_LINKS = [SeedsGenerator.RANDO_BASE]
+class AdrandoCommandHandler:
+    RANDO_LINKS = [SeedsGenerator.ADRANDO_BASE]
 
     def __init__(self, args):
         self._args = args
@@ -173,7 +178,7 @@ class RandoCommandHandler:
             return self._generate_seeds(preset_name)
 
     def _current_rando_seed_links(self):
-        return ['Current rando seed links:'] + [f"Seed {i + 1}: <{link}>" for i, link in enumerate(self.RANDO_LINKS)]
+        return ['Current adrando seed links:'] + [f"Seed {i + 1}: <{link}>" for i, link in enumerate(self.RANDO_LINKS)]
 
     def _available_presets(self):
         return [
@@ -187,7 +192,7 @@ class RandoCommandHandler:
             params_descriptor = AdRandomizerParamsDescriptorSelector.select(preset_name)
             description, params, validator = params_descriptor
             seeds_number = self._parse_seeds_number()
-            RandoCommandHandler.RANDO_LINKS = SeedsGenerator(params, validator, seeds_number).generate()
+            AdrandoCommandHandler.RANDO_LINKS = SeedsGenerator(params, validator, seeds_number).generate()
             return [f"Generating {seeds_number} {description} seed{'s' if seeds_number>1 else ''}..."] + \
                 self._current_rando_seed_links()
         except CurryError as exc:
@@ -207,4 +212,4 @@ class RandoCommandHandler:
             else:
                 raise CurryError(f'Number of seeds is limited to {MAX_SEEDS_NUMBER}.')
         except ValueError:
-            raise CurryError(f"I don't know how to generate {seeds_number_string} seeds. Type '!help rando' for help.")
+            raise CurryError(f"I don't know how to generate {seeds_number_string} seeds. Type '!help adrando' for help.")
