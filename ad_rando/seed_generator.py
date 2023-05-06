@@ -101,13 +101,13 @@ class NoHiKewneSeedValidator(SeedValidator):
 
 class AdRandomizerParamsDescriptorSelector:
     ADRANDO_PRESETS = {
-        'secondTower': 'Only Second Tower',
-        'secondTowerRun': 'Speedrun Second Tower',
-        'starsTournament': 'STARS Tournament',
+        'secondtower': 'Only Second Tower',
+        'secondtowerrun': 'Speedrun Second Tower',
+        'starstournament': 'STARS Tournament',
         'tournament': 'RM3T #2 Tournament'
     }
     MANUAL_PRESETS = {
-        'randomToolkit': (
+        'randomtoolkit': (
             'RM3T #3 Random Toolkit Tournament',
             ManualRandomizerParams('dE:-2,fh:1,iInS:0,txX'),
             NoHiKewneSeedValidator()
@@ -128,11 +128,11 @@ class AdRandomizerParamsDescriptorSelector:
     def select(cls, searched_preset_name):
         def matches_preset(preset):
             preset_name, _ = preset
-            return preset_name.startswith(searched_preset_name)
+            return preset_name.startswith(searched_preset_name.lower())
 
         def matches_preset_exactly(preset):
             preset_name, _ = preset
-            return preset_name == searched_preset_name
+            return preset_name == searched_preset_name.lower()
 
         matching_presets = list(filter(matches_preset, cls.all_presets().items()))
         if len(matching_presets) > 1:
