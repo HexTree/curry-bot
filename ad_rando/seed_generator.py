@@ -114,7 +114,7 @@ class AdRandomizerParamsDescriptorSelector:
         ),
         'randomtoolkit': (
             'RM3T #6 Random Toolkit Tournament',
-            ManualRandomizerParams('dE:-2,fh:1,iInS:0,tux'),
+            ManualRandomizerParams('dE:-2,fh:1,iIlnS:0,tux'),
             NoHiKewneSeedValidator()
         ),
         'sde': (
