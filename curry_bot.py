@@ -25,6 +25,8 @@ COUNTDOWN_START = 10
 # EMOJIS
 NICOHEY = '<:NicoHey:635538084062298122>'
 HORZASHOOK = '<:Horzashook:717744240670539788>'
+HEADS = '<:heads:1175710881183715401>'
+TAILS = '<:tails:1175711089997135872>'
 
 # EVENTS
 @client.event
@@ -155,9 +157,9 @@ async def countdown(ctx, *args):
 async def flip(ctx):
     await ctx.send(curry_message("Flipping coin..."))
     if dice_roll(1, 2) == 1:
-        await ctx.send(curry_message("Heads :crown:"))
+        await ctx.send(curry_message("Heads " + HEADS))
     else:
-        await ctx.send(curry_message("Tails :coin:"))
+        await ctx.send(curry_message("Tails " + TAILS))
 
 
 @client.command(description="Roll n-sided dice. For instance '!roll 2d8' rolls two 8-sided dice and sums them. '!roll d20' rolls a 20-sided die. Uses random bits from random.org", brief="Roll dice")
