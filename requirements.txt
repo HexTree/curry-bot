@@ -1,6 +1,6 @@
 beautifulsoup4
-discord.py
+nextcord
 oauth2client
+python-Levenshtein-wheels
 requests
 srcomapi
-python-Levenshtein-wheels

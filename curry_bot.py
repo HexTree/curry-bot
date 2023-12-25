@@ -1,7 +1,7 @@
 import random
 
-from discord import Game, Intents, Status
-from discord.ext.commands import Bot
+from nextcord import Game, Intents, Status
+from nextcord.ext.commands import Bot
 
 from ad_rando.seed_generator import AdrandoCommandHandler
 from bingo.bingo import get_room
