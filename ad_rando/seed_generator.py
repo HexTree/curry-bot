@@ -103,8 +103,7 @@ class AdRandomizerParamsDescriptorSelector:
     ADRANDO_PRESETS = {
         'secondtower': 'Only Second Tower',
         'secondtowerrun': 'Speedrun Second Tower',
-        'starstournament': 'STARS Tournament',
-        'rm3t2': 'RM3T #2 Tournament'
+        'roche': 'Passionate Roche Tournament'
     }
     MANUAL_PRESETS = {
         'rm3t3': (
@@ -126,6 +125,11 @@ class AdRandomizerParamsDescriptorSelector:
             'Riders of the Sky Tournament',
             ManualRandomizerParams('cdfFiltux'),
             NoRestrictionsSeedValidator()
+        ),
+        'roche': (
+            'Passionate Roche Tournament',
+            ManualRandomizerParams('dE:-2,fh:1,HiIlnS:0,tx'),
+            NoHiKewneSeedValidator()
         )
     }
 

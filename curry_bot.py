@@ -113,13 +113,6 @@ async def adrando(ctx, *args):
     responses = AdrandoCommandHandler(args).handle()
     await ctx.send('\n'.join(curry_message(response) for response in responses))
 
-
-@client.command(description="deprecated, same as adrando")
-async def rando(ctx, *args):
-    responses = AdrandoCommandHandler(args).handle()
-    await ctx.send('\n'.join(curry_message(response) for response in responses))
-
-
 @client.command(description="Type '!leaderboard <category>' to display the current leaderboard", brief="Fetch requested speedrun leaderboard")
 async def leaderboard(ctx, *args):
     if not args:
@@ -139,18 +132,18 @@ async def leaderboard(ctx, *args):
 @client.command(description="Type '!countdown' to start a countdown from {}.\nType '!countdown <start>' to countdown from start, where start is a positive integer <= {}.".format(COUNTDOWN_START, COUNTDOWN_START), brief="Start a countdown")
 async def countdown(ctx, *args):
     if args and not args[0].isdigit():
-        await ctx.send(curry_message("I can't count starting from {}. Curry.".format(args[0])))
+        await ctx.send(curry_message("I can't count starting from {}.".format(args[0])))
     else:
         start = int(args[0]) if args else COUNTDOWN_START
         if start <= 0:
-            await ctx.send(curry_message("Why not just say 'go'? Curry."))
+            await ctx.send(curry_message("Why not just say 'go'?"))
         elif start > COUNTDOWN_START:
-            await ctx.send(curry_message("That sounds like a lot of work. Ask me to start counting from {} or less. Curry.".format(COUNTDOWN_START)))
+            await ctx.send(curry_message("That sounds like a lot of work. Ask me to start counting from {} or less.".format(COUNTDOWN_START)))
         else:
             for n in range(0, start):
                 await ctx.send(curry_message("{}".format(start - n)))
                 time.sleep(1)
-            await ctx.send(curry_message("Go! Curry."))
+            await ctx.send(curry_message("Go!"))
 
 
 @client.command(description="Flip a coin, resulting in Heads or Tails. Uses random bits from random.org", brief="Flip a coin")
