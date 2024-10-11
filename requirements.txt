@@ -1,6 +1,4 @@
 beautifulsoup4
 nextcord
-oauth2client
-python-Levenshtein-wheels
 requests
 srcomapi
