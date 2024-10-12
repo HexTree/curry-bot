@@ -45,9 +45,6 @@
         "name": "4 Girls: 4+ girls in Save Screen"
     },
     {
-        "name": "Monster Book: Complete 1 column of 1 elemental page of the Monster Book"
-    },
-    {
         "name": "Nico (Good): Meet Nico at a Cultural Building"
     },
     {
@@ -120,22 +117,13 @@
         "name": "King Pin: Beat Bet at the Bowling game (30 points)"
     },
     {
-        "name": "Whack a Mole: Beat Bet at the Hit the Mole game (20 points)"
-    },
-    {
-        "name": "Batting game: Beat Bet at the Batting game (40 points)"
-    },
-    {
         "name": "Lucky 7s: Hit the 777 jackpot at the Casino"
     },
     {
         "name": "Barbell Toss: Beat the gym record at Barbell Toss (20 points)"
     },
     {
-        "name": "Koh-Boat Show: Complete theatre routine as a U-boat (use floor glitch)"
-    },
-    {
-        "name": "3 Bonks: Get knocked out by Fon (fail comedy act)"
+        "name": "Furworm???: Complete theatre routine"
     },
     {
         "name": "Fountain climb: Stand on top of the Fountain"
@@ -145,9 +133,6 @@
     },
     {
         "name": "Ball of Wisdom: Teach familiar a spell from a ball"
-    },
-    {
-        "name": "Glitched Entry: Perform a Glitched Entry to the tower"
     },
     {
         "name": "Millionaire: Amass at least 1,000,000 Gold"
@@ -174,9 +159,6 @@
         "name": "Don't Fence Me In: Seal yourself off using transformed Manoeva until Earthquake"
     },
     {
-        "name": "Immunity: Survive till Earthquake using Immunity Glitch"
-    },
-    {
         "name": "Our Powers Combined: Acquire all 3 elements of either sword/shield/wand/seed/crystal"
     },
     {
@@ -193,8 +175,5 @@
     },
     {
         "name": "Reflector: Reflect a spell back to the caster"
-    },
-    {
-        "name": "Moonattack: Strike an enemy while facing the other way (moonwalk glitch)"
     }
 ]
